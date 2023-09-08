@@ -3,7 +3,6 @@ import argparse
 import wandb
 import weave
 
-import predict
 import settings
 import util
 
