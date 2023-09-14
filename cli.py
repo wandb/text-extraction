@@ -213,8 +213,10 @@ def weave_op_main(weave_op: op_def.OpDef):
         print("CONFIG FROM WANDB LAUNCH", config_val)
 
     config_val = uris_to_get_nodes(config_val)
+    print("CONFIG AFTER GET NODES", config_val)
 
     called = weave_op(**config_val)
+    print("CALLED", called)
     result = weave.use(called)
 
     if settings.wandb:
