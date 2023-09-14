@@ -1,1 +1,5 @@
-wandb_project = "shawn/text-extract7"
+wandb_project = "shawn/text-extract8"
+
+entity, project = wandb_project.split("/")
+
+wandb = True

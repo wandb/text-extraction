@@ -1,52 +1,40 @@
-from __future__ import annotations
-import argparse
-import re
 import typing
-from typing_extensions import (
-    NotRequired,
-    TypedDict,
-)
 
-from arg_config import parser
-
-parser.add_argument("--model_basic_name_up_to_period", action="store_true")
-parser.add_argument("--model_basic_shares_skip_chars", type=int)
+import weave
+import cli
 
 
-
-def split_paragraphs(doc):
-    lines = [l.strip() for l in doc.split("\n")]
-    stripped_doc = "\n".join(lines)
-    return [p.strip() for p in stripped_doc.split("\n\n")]
-
-
-def find_first_numeric(s: str) -> typing.Optional[int]:
-    match = re.search(r"\d+", s)
-    if match is None:
-        return None
-    return int(match.group().replace(",", ""))
+# TODO: optional
+class PredictBasicConfig(typing.TypedDict):
+    name_up_to_period: bool
+    shares_skip_chars: int
 
 
-class PredictBasicConfig(TypedDict):
-    name_up_to_period: NotRequired[bool]
-    shares_skip_chars: NotRequired[int]
+class PredictBasicOutput(typing.TypedDict):
+    name: str
+    shares: int
+
 
 # Model
+@weave.type()
 class PredictBasic:
-    @classmethod
-    def from_args(cls, args) -> PredictBasic:
-        # TODO: can get rid of this boilerplate
-        predict_config = {}
-        if args['model_basic_name_up_to_period']:
-            predict_config["name_up_to_period"] = True
-        if args['model_basic_shares_skip_chars']:
-            predict_config["shares_skip_chars"] = args['model_basic_shares_skip_chars']
-        return cls(predict_config)
+    config: PredictBasicConfig
 
-    def __init__(self, config: PredictBasicConfig):
-        self.config = config
+    @weave.op()
+    def predict(self, example: str) -> PredictBasicOutput:
+        import re
 
-    def predict(self, example: str) -> dict:
+        def split_paragraphs(doc):
+            lines = [l.strip() for l in doc.split("\n")]
+            stripped_doc = "\n".join(lines)
+            return [p.strip() for p in stripped_doc.split("\n\n")]
+
+        def find_first_numeric(s: str) -> typing.Optional[int]:
+            match = re.search(r"\d+", s)
+            if match is None:
+                return None
+            return int(match.group().replace(",", ""))
+
         config = self.config
         paragraphs = split_paragraphs(example)
         capital_paragraph = None
@@ -73,7 +61,6 @@ class PredictBasic:
                     result["name"] = result["name"][: match.start()]
         return result
 
-if __name__ == '__main__':
-    import job_batch_predict
 
-    job_batch_predict.main(PredictBasic)
+if __name__ == "__main__":
+    cli.weave_object_main(PredictBasic)

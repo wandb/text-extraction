@@ -2,4 +2,4 @@ dataset/
 wandb/
 .ipynb_checkpoints/
 __pycache__
-
+weave-fs/
