@@ -8,7 +8,7 @@ import base_types
 def batch_predict(dataset: base_types.Dataset, model) -> typing.Any:
     predict_result = []
     print("DATASET", dataset)
-    print("MODEL", model)
+    print("MODEL", model, model.predict)
 
     for dataset_row in dataset.rows:
         result = weave.use(model.predict(dataset_row["example"]))
