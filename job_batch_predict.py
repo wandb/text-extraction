@@ -15,7 +15,7 @@ def batch_predict(dataset, model):
     predict_result = []
 
     for dataset_row in dataset.rows:
-        result = model.predict(dataset_row["example"])
+        result = weave.use(model.predict(dataset_row["example"]))
         predict_result.append({
             'dataset_id': dataset_row['id'],
             'prediction': result,
@@ -23,7 +23,7 @@ def batch_predict(dataset, model):
     return {'prediction_table': predict_result}
 
 
-def main(model_class):
+def main(from_args):
     args = parser.parse_args()
 
     if args.wandb:
@@ -37,7 +37,9 @@ def main(model_class):
         args["dataset_uri"] = args["dataset_uri"][4:]
 
     dataset = weave.storage.get(args["dataset_uri"])
-    model = model_class.from_args(args)
+    model = from_args(args)
+
+    # Create model if it doesn't exist...
 
     result = batch_predict(dataset, model)
 

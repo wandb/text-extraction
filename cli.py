@@ -22,17 +22,19 @@ def validate_object_ref(ref: str) -> uris.WeaveURI:
     return parsed_uri
 
 
+# TODO: I disabled required because it doesn't work with launch
+# (launch passes wandb config instead)
 def add_arg_to_parser(
     prefix: str, arg_type: weave.types.Type, parser: argparse.ArgumentParser
 ):
     if isinstance(arg_type, weave.types.Boolean):
         parser.add_argument(f"--{prefix}", action="store_true", default=False)
     elif isinstance(arg_type, weave.types.Int):
-        parser.add_argument(f"--{prefix}", type=int, required=True)
+        parser.add_argument(f"--{prefix}", type=int)
     elif isinstance(arg_type, weave.types.Float):
-        parser.add_argument(f"--{prefix}", type=float, required=True)
+        parser.add_argument(f"--{prefix}", type=float)
     elif isinstance(arg_type, weave.types.String):
-        parser.add_argument(f"--{prefix}", type=str, required=True)
+        parser.add_argument(f"--{prefix}", type=str)
     elif isinstance(arg_type, weave.types.TypedDict):
         for k, v in arg_type.property_types.items():
             add_arg_to_parser(f"{prefix}.{k}" if prefix else k, v, parser)
@@ -40,12 +42,12 @@ def add_arg_to_parser(
         parser.add_argument(
             f"--{prefix}",
             type=validate_object_ref,
-            required=True,
+            # required=True,
             help=f"URI of {arg_type.name}",
         )
     elif isinstance(arg_type, weave.types.List):
         parser.add_argument(
-            f"--{prefix}", nargs="*", type=int, required=True
+            f"--{prefix}", nargs="*", type=int  # , required=True
         )  # Assuming int for demonstration (TODO)
     elif weave.types.is_optional(arg_type):
         non_none_type = weave.types.split_none(arg_type)[1]
