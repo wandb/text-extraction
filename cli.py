@@ -195,10 +195,10 @@ def weave_op_main(weave_op: op_def.OpDef):
     parser = argparse.ArgumentParser(usage=f"Executes the {weave_op.name} Weave Op")
     add_arg_to_parser("", weave_input_type, parser)
 
+    config_val = {}
     if not is_wandb_launch_mode():
         args = parser.parse_args()
-
-    config_val = convert_to_value(args, weave_input_type)
+        config_val = convert_to_value(args, weave_input_type)
 
     if settings.wandb:
         config_val = publish_local_artifacts(config_val)
