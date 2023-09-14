@@ -203,16 +203,14 @@ def weave_op_main(weave_op: op_def.OpDef):
     if settings.wandb:
         config_val = publish_local_artifacts(config_val)
 
-        run_config = None
-        if not is_wandb_launch_mode():
-            run_config = weave_config_to_wandb_config(config_val)
+        run_config = weave_config_to_wandb_config(config_val)
 
-        print("RUN_CONFIG", run_config)
         run = wandb.init(
             entity=settings.entity, project=settings.project, config=run_config
         )
         # If the config is passed in by launch, we need to process it differently.
         config_val = wandb_config_to_weave_config(run.config)
+        print("CONFIG FROM WANDB LAUNCH", config_val)
 
     config_val = uris_to_get_nodes(config_val)
 
