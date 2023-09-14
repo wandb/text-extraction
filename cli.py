@@ -22,19 +22,17 @@ def validate_object_ref(ref: str) -> uris.WeaveURI:
     return parsed_uri
 
 
-# TODO: I disabled required because it doesn't work with launch
-# (launch passes wandb config instead)
 def add_arg_to_parser(
     prefix: str, arg_type: weave.types.Type, parser: argparse.ArgumentParser
 ):
     if isinstance(arg_type, weave.types.Boolean):
         parser.add_argument(f"--{prefix}", action="store_true", default=False)
     elif isinstance(arg_type, weave.types.Int):
-        parser.add_argument(f"--{prefix}", type=int)
+        parser.add_argument(f"--{prefix}", type=int, required=True)
     elif isinstance(arg_type, weave.types.Float):
-        parser.add_argument(f"--{prefix}", type=float)
+        parser.add_argument(f"--{prefix}", type=float, required=True)
     elif isinstance(arg_type, weave.types.String):
-        parser.add_argument(f"--{prefix}", type=str)
+        parser.add_argument(f"--{prefix}", type=str, required=True)
     elif isinstance(arg_type, weave.types.TypedDict):
         for k, v in arg_type.property_types.items():
             add_arg_to_parser(f"{prefix}.{k}" if prefix else k, v, parser)
@@ -42,12 +40,12 @@ def add_arg_to_parser(
         parser.add_argument(
             f"--{prefix}",
             type=validate_object_ref,
-            # required=True,
+            required=True,
             help=f"URI of {arg_type.name}",
         )
     elif isinstance(arg_type, weave.types.List):
         parser.add_argument(
-            f"--{prefix}", nargs="*", type=int  # , required=True
+            f"--{prefix}", nargs="*", type=int, required=True
         )  # Assuming int for demonstration (TODO)
     elif weave.types.is_optional(arg_type):
         non_none_type = weave.types.split_none(arg_type)[1]
@@ -182,6 +180,10 @@ def publish_local_artifacts(c: dict):
     return config
 
 
+def is_wandb_launch_mode():
+    return bool(os.environ.get("WANDB_LAUNCH"))
+
+
 def weave_op_main(weave_op: op_def.OpDef):
     input_type = weave_op.input_type
     if not isinstance(input_type, op_args.OpNamedArgs):
@@ -192,14 +194,17 @@ def weave_op_main(weave_op: op_def.OpDef):
     parser = argparse.ArgumentParser(usage=f"Executes the {weave_op.name} Weave Op")
     add_arg_to_parser("", weave_input_type, parser)
 
-    args = parser.parse_args()
+    if not is_wandb_launch_mode():
+        args = parser.parse_args()
 
     config_val = convert_to_value(args, weave_input_type)
 
     if settings.wandb:
         config_val = publish_local_artifacts(config_val)
 
-        run_config = weave_config_to_wandb_config(config_val)
+        run_config = None
+        if not is_wandb_launch_mode():
+            run_config = weave_config_to_wandb_config(config_val)
 
         run = wandb.init(
             entity=settings.entity, project=settings.project, config=run_config
