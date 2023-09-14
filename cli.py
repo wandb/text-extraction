@@ -1,5 +1,6 @@
 import argparse
 import typing
+import os
 
 import weave
 from weave import op_def
