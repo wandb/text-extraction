@@ -207,6 +207,7 @@ def weave_op_main(weave_op: op_def.OpDef):
         if not is_wandb_launch_mode():
             run_config = weave_config_to_wandb_config(config_val)
 
+        print("RUN_CONFIG", run_config)
         run = wandb.init(
             entity=settings.entity, project=settings.project, config=run_config
         )
