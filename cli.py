@@ -1,11 +1,13 @@
 import argparse
 import typing
+import types as pytypes
 import os
 
 import weave
 from weave import op_def
 from weave import op_args
 from weave import uris
+from weave import errors as weave_errors
 from weave import artifact_local
 
 import wandb
@@ -185,6 +187,27 @@ def is_wandb_launch_mode():
     return bool(os.environ.get("WANDB_LAUNCH"))
 
 
+def publish_result_objs(project, run_id, result, key=""):
+    if isinstance(result, dict):
+        return {
+            k: publish_result_objs(project, run_id, v, f"{key}-{k}")
+            for k, v in result.items()
+        }
+    elif result is None or isinstance(result, (int, float, str, bool, tuple, set)):
+        return result
+    from weave.wandb_interface import wandb_stream_table
+
+    try:
+        result_ref = weave.storage.publish(result, f"{project}/run-{run_id}-{key}")
+    except weave_errors.WeaveSerializeError:
+        # Weave doesn't have a Type for this. Let wandb try. (this currently happens
+        # e.g. for numpy values)
+        return result
+    # We publish result, but because we created a ref above we'll end up
+    # saving the ref here.
+    return wandb_stream_table.leaf_to_weave(result, None)
+
+
 def weave_op_main(weave_op: op_def.OpDef):
     input_type = weave_op.input_type
     if not isinstance(input_type, op_args.OpNamedArgs):
@@ -217,11 +240,13 @@ def weave_op_main(weave_op: op_def.OpDef):
 
     called = weave_op(**config_val)
     print("CALLED", called)
-    result = weave.use(called)
+    output = weave.use(called)
 
     if settings.wandb:
-        if isinstance(result, dict):
-            # TODO
-            run.log(result)
+        # TRUST?
+        if isinstance(output, dict):
+            run.summary.update(publish_result_objs(settings.project, run.id, output))
         else:
-            run.summary["result"] = result
+            run.summary["output"] = publish_result_objs(
+                settings.project, run.id, output, "output"
+            )

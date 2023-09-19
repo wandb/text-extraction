@@ -19,7 +19,7 @@ def read_dataset():
             dataset_rows.append(
                 {"id": example_id, "example": open(p).read(), "label": label}
             )
-    return dataset_rows
+    return weave.WeaveList(dataset_rows)
 
 
 def publish():
