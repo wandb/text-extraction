@@ -6,7 +6,9 @@ from weave import weave_internal
 import settings
 
 
-def make_board(initial_entity_name: str, initial_project_name: str):
+def make_board(
+    initial_entity_name: str, initial_project_name: str, predictions_stream_name: str
+):
     varbar = panel_board.varbar()
 
     entity_name_val = varbar.add("entity_name_val", initial_entity_name, hidden=True)
@@ -35,7 +37,7 @@ def make_board(initial_entity_name: str, initial_project_name: str):
         ),
     )
 
-    model_version_val = varbar.add("model_version_val", "latest")
+    model_version_val = varbar.add("model_version_val", "v0")
 
     model_artifact_version = varbar.add(
         "model_artifact_version",
@@ -47,6 +49,20 @@ def make_board(initial_entity_name: str, initial_project_name: str):
     #     weave_internal.const('wandb-artifact:///')
     #     + entity_name_val + '/' + project_name_val + '/' + dataset_name_val + ':latest/obj'),
     #                     hidden=True)
+
+    model_uri = varbar.add(
+        "model_uri",
+        weave_internal.const("wandb-artifact:///")
+        + entity_name_val
+        + "/"
+        + project_name_val
+        + "/"
+        + model_name_val
+        + ":"
+        + model_version_val
+        + "/obj",
+        hidden=True,
+    )
 
     model = varbar.add(
         "model",
@@ -61,6 +77,21 @@ def make_board(initial_entity_name: str, initial_project_name: str):
             + model_version_val
             + "/obj"
         ),
+    )
+
+    prediction_stream = varbar.add(
+        "prediction_stream",
+        weave.ops.get(
+            weave_internal.const("wandb-artifact:///")
+            + entity_name_val
+            + "/"
+            + project_name_val
+            + "/"
+            + predictions_stream_name
+            + ":latest/obj"
+        )
+        .rows()
+        .filter(lambda row: row["inputs.self"] == model_uri),
     )
 
     main = weave.panels.Group(
@@ -108,7 +139,7 @@ def make_board(initial_entity_name: str, initial_project_name: str):
     )
 
     main.add(
-        "used by",
+        "used_by_runs",
         weave.panels.Table(
             model_artifact_version.usedBy(),
             columns=[
@@ -118,6 +149,12 @@ def make_board(initial_entity_name: str, initial_project_name: str):
             ],
         ),
         layout=weave.panels.GroupPanelLayout(x=12, y=4, w=12, h=8),
+    )
+
+    main.add(
+        "predictions",
+        prediction_stream,
+        layout=weave.panels.GroupPanelLayout(x=0, y=12, w=24, h=12),
     )
 
     # TODO: code to load a particular evaluation result
@@ -130,7 +167,9 @@ def make_board(initial_entity_name: str, initial_project_name: str):
 if __name__ == "__main__":
     entity, project = settings.wandb_project.split("/")
     # board_ref = weave.storage.save(make_board(entity, project), f"{project}/models")
-    board_ref = weave.storage.save(make_board(entity, project), "models_board")
+    board_ref = weave.storage.save(
+        make_board(entity, project, settings.predictions_stream_name), "models_board"
+    )
     print(board_ref)
 
     fetch_op = weave.ops.get(str(board_ref))

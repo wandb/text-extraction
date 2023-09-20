@@ -2,6 +2,7 @@ import typing
 
 import weave
 import cli
+import base_types
 
 
 # TODO: optional
@@ -17,7 +18,7 @@ class PredictBasicOutput(typing.TypedDict):
 
 # Model
 @weave.type()
-class PredictBasic:
+class PredictBasic(base_types.Model):
     config: PredictBasicConfig
 
     @weave.op()
@@ -59,6 +60,31 @@ class PredictBasic:
                 match = re.search(r"\.", result["name"])
                 if match is not None:
                     result["name"] = result["name"][: match.start()]
+
+        from weave import storage
+
+        ref = storage.get_ref(self)
+        from weave.monitoring.monitor import default_monitor
+
+        mon = default_monitor()
+        st = mon._streamtable
+        if st:
+            project_name = st._project_name
+            if not ref:
+                ref = weave.storage.publish(
+                    self, f"{project_name}/{self.__class__.__name__}"
+                )
+            from weave.monitoring.monitor import Span
+
+            s = Span(
+                "PredictBasic-predict",
+                st,
+                inputs={"self": ref, "example": example},
+                output=result,
+            )
+            print("LOGGING", example, result)
+            s.close()
+
         return result
 
 
