@@ -61,6 +61,7 @@ class PredictBasic(base_types.Model):
                 if match is not None:
                     result["name"] = result["name"][: match.start()]
 
+        # TODO: move monitoring / trace code into Weave engine.
         from weave import storage
 
         ref = storage.get_ref(self)
@@ -82,7 +83,6 @@ class PredictBasic(base_types.Model):
                 inputs={"self": ref, "example": example},
                 output=result,
             )
-            print("LOGGING", example, result)
             s.close()
 
         return result

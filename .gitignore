@@ -1,3 +1,4 @@
+.python-version
 dataset/
 wandb/
 .ipynb_checkpoints/
