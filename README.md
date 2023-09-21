@@ -17,6 +17,8 @@ The next block creates the following:
 - Evaluations of both models
 - Three boards: dataset browser, model browser, model comparsion
 
+This prints a bunch of errors, but they are actually benign. It should take about a minute.
+
 ```
 mkdir -p dataset
 cp example_data/* dataset/
@@ -29,6 +31,7 @@ Now you can Browse to https://weave.wandb.ai/browse/wandb/<entity>/<project> to 
 your boards.
 
 NOTE: this repo currently relies on unreleased weave and wandb changes, so you need to use
-the weave server on localhost in devmode instead of weave.wandb.ai
+the weave server on localhost in devmode instead of weave.wandb.ai. To do this, checkout
+https://github.com/wandb/weave, set it up, `cd weave-js`, `yarn dev`
 
 You can also see the underlying artifacts at https://wandb.ai/<entity>/<project>/artifacts
