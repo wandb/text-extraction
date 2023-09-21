@@ -32,11 +32,13 @@ your boards. -->
 
 Usually, you could view the weave UI at weave.wandb.ai. However, this repo currently relies on unreleased weave and wandb changes, so you need to run the weave server locally.
 
-To do this, run:
+To do this,
 
 ```
-# Yes you really have to use ipython here for now.
-ipython -m weave_ui_server
+git checkout https://wandb.ai/wandb/weave
+git checkout eval
+
+# Follow the instructions in DEVELOPMENT.md to get the Weave UI running locally
 ```
 
 The above prints a link to the UI
