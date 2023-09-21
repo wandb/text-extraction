@@ -6,6 +6,7 @@ import weave
 
 import settings
 import base_types
+import cli
 
 
 def read_dataset():
@@ -19,15 +20,12 @@ def read_dataset():
             dataset_rows.append(
                 {"id": example_id, "example": open(p).read(), "label": label}
             )
-    return weave.WeaveList(dataset_rows)
+    return base_types.Dataset(rows=weave.WeaveList(dataset_rows))
 
 
 def publish():
-    dataset_rows = read_dataset()
-    dataset = base_types.Dataset(rows=dataset_rows)
-    entity, project = settings.wandb_project.split("/")
-    res = weave.storage.publish(dataset, f"{project}/dataset")
-    print("RES", res)
+    dataset = read_dataset()
+    return cli.publish(dataset, "dataset")
 
 
 if __name__ == "__main__":

@@ -1,20 +1,17 @@
 ## Setup project
 
-edit settings.py
-
-## publish boards
-
-python board_datasets.py
-
-## publish the starter dataset
+edit entity and project in settings.py
 
 ```
-mkdir dataset
-cp -R example_data/* dataset/
-python publish_dataset.py
+mkdir -p dataset
+cp example_data/* dataset/
+python bootstrap_project.py
 ```
 
 ## visit the UI
 
 Now you can Browse to https://weave.wandb.ai/browse/wandb/<entity>/<project> to find
-your board. Click it to load up your dataset
+your boards.
+
+NOTE: this repo currently relies on unreleased weave and wandb changes, so you need to use
+the weave server on localhost in devmode instead of weave.wandb.ai

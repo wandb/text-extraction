@@ -133,5 +133,4 @@ def main():
 
 
 if __name__ == "__main__":
-    # TODO: just make this an op for to simplify.
     main()

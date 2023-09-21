@@ -1,9 +1,9 @@
 import weave
 from weave.panels import panel_board
 from weave import ops_domain
-from weave import weave_internal
 
 import settings
+import cli
 
 
 def make_board(initial_entity_name: str, initial_project_name: str):
@@ -16,7 +16,7 @@ def make_board(initial_entity_name: str, initial_project_name: str):
 
     entity_name_val = varbar.add("entity_name_val", initial_entity_name, hidden=True)
     entity = ops_domain.entity(entity_name_val)
-    entity_name = varbar.add(
+    varbar.add(
         "entity_name",
         weave.panels.Dropdown(
             entity_name_val, choices=ops_domain.viewer().entities().name()
@@ -25,7 +25,7 @@ def make_board(initial_entity_name: str, initial_project_name: str):
 
     project_name_val = varbar.add("project_name_val", initial_project_name, hidden=True)
     project = ops_domain.project(entity_name_val, project_name_val)
-    project_name = varbar.add(
+    varbar.add(
         "project_name",
         weave.panels.Dropdown(project_name_val, choices=entity.projects().name()),
     )
@@ -33,7 +33,7 @@ def make_board(initial_entity_name: str, initial_project_name: str):
     baseline_model_name_val = varbar.add(
         "baseline_model_name_val", "PredictBasic", hidden=True
     )
-    baseline_model_name = varbar.add(
+    varbar.add(
         "baseline_model_name",
         weave.panels.Dropdown(
             baseline_model_name_val,
@@ -56,7 +56,7 @@ def make_board(initial_entity_name: str, initial_project_name: str):
     candidate_model_name_val = varbar.add(
         "candidate_model_name_val", "PredictBasic", hidden=True
     )
-    candidate_model_name = varbar.add(
+    varbar.add(
         "candidate_model_name",
         weave.panels.Dropdown(
             candidate_model_name_val,
@@ -257,25 +257,8 @@ def make_board(initial_entity_name: str, initial_project_name: str):
         layout=weave.panels.GroupPanelLayout(x=0, y=14, w=24, h=12),
     )
 
-    # TODO: code to load a particular evaluation result
-    #   yeah we really want to define this model as an object with a bunch of functions that
-    #   produce its "slot" information.
-
     return weave.panels.Board(vars=varbar, panels=main)
 
 
 if __name__ == "__main__":
-    entity, project = settings.wandb_project.split("/")
-    # board_ref = weave.storage.save(make_board(entity, project), f"{project}/models")
-    board_ref = weave.storage.save(make_board(entity, project), "model_compare_board")
-    print(board_ref)
-
-    fetch_op = weave.ops.get(str(board_ref))
-    fetch_op_s = str(fetch_op)
-
-    # uri encode fetch_op_s, first import any modules we need
-    import urllib.parse
-
-    # then encode
-    fetch_op_s = urllib.parse.quote(fetch_op_s)
-    print(f"http://localhost:3000/?exp={fetch_op_s}")
+    cli.publish(make_board(settings.entity, settings.project), "model_compare_board")
