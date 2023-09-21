@@ -27,11 +27,10 @@ python bootstrap_project.py
 
 ## visit the UI
 
-Now you can Browse to https://weave.wandb.ai/browse/wandb/<entity>/<project> to find
-your boards.
+<!-- Now you can Browse to https://weave.wandb.ai/browse/wandb/<entity&gt;/<project&gt; to find
+your boards. -->
 
-NOTE: this repo currently relies on unreleased weave and wandb changes, so you need to
-run the weave server locally.
+Usually, you could view the weave UI at weave.wandb.ai. However, this repo currently relies on unreleased weave and wandb changes, so you need to run the weave server locally.
 
 To do this, run:
 
@@ -40,4 +39,6 @@ To do this, run:
 ipython -m weave_ui_server
 ```
 
-You can also see the underlying artifacts at https://wandb.ai/<entity>/<project>/artifacts
+The above prints a link to the UI
+
+You can also see the underlying W&B artifacts by going to https://wandb.ai, browsing to your project, and clicking the artifacts tab.
