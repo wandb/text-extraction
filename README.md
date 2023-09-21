@@ -30,8 +30,14 @@ python bootstrap_project.py
 Now you can Browse to https://weave.wandb.ai/browse/wandb/<entity>/<project> to find
 your boards.
 
-NOTE: this repo currently relies on unreleased weave and wandb changes, so you need to use
-the weave server on localhost in devmode instead of weave.wandb.ai. To do this, checkout
-https://github.com/wandb/weave, set it up, `cd weave-js`, `yarn dev`
+NOTE: this repo currently relies on unreleased weave and wandb changes, so you need to
+run the weave server locally.
+
+To do this, run:
+
+```
+# Yes you really have to use ipython here for now.
+ipython -m weave_ui_server
+```
 
 You can also see the underlying artifacts at https://wandb.ai/<entity>/<project>/artifacts
