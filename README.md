@@ -35,10 +35,7 @@ Usually, you could view the weave UI at weave.wandb.ai. However, this repo curre
 To do this,
 
 ```
-git checkout https://wandb.ai/wandb/weave
-git checkout eval
-
-# Follow the instructions in DEVELOPMENT.md to get the Weave UI running locally
+python weave_ui_server.py
 ```
 
 The above prints a link to the UI
