@@ -37,13 +37,13 @@ def make_board(initial_entity_name: str, initial_project_name: str):
         "baseline_model_name",
         weave.panels.Dropdown(
             baseline_model_name_val,
-            choices=project.artifactType("PredictBasic").artifacts().name(),
+            choices=project.artifactType("Model").artifacts().name(),
         ),
     )
-    baseline_model_version_val = varbar.add("baseline_model_version_val", "v0")
+    baseline_model_version_val = varbar.add("baseline_model_version_val", "latest")
     baseline_model_artifact_version = varbar.add(
         "baseline_model_artifact_version",
-        project.artifactVersion("PredictBasic", baseline_model_version_val),
+        project.artifactVersion(baseline_model_name_val, baseline_model_version_val),
     )
 
     baseline_eval_run = varbar.add(
@@ -54,19 +54,19 @@ def make_board(initial_entity_name: str, initial_project_name: str):
     )
 
     candidate_model_name_val = varbar.add(
-        "candidate_model_name_val", "PredictBasic", hidden=True
+        "candidate_model_name_val", "ModelLLM", hidden=True
     )
     varbar.add(
         "candidate_model_name",
         weave.panels.Dropdown(
             candidate_model_name_val,
-            choices=project.artifactType("PredictBasic").artifacts().name(),
+            choices=project.artifactType("Model").artifacts().name(),
         ),
     )
-    candidate_model_version_val = varbar.add("candidate_model_version_val", "v1")
+    candidate_model_version_val = varbar.add("candidate_model_version_val", "latest")
     candidate_model_artifact_version = varbar.add(
         "candidate_model_artifact_version",
-        project.artifactVersion("PredictBasic", candidate_model_version_val),
+        project.artifactVersion(candidate_model_name_val, candidate_model_version_val),
     )
     candidate_eval_run = varbar.add(
         "candidate_eval_run",
@@ -261,4 +261,4 @@ def make_board(initial_entity_name: str, initial_project_name: str):
 
 
 if __name__ == "__main__":
-    cli.publish(make_board(settings.entity, settings.project), "model_compare_board")
+    cli.publish(make_board(settings.entity, settings.project), "model_compare")

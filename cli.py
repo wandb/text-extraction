@@ -12,6 +12,7 @@ from weave import errors as weave_errors
 from weave import artifact_local
 from weave import artifact_wandb
 from weave import context_state
+from weave import ref_base
 
 import wandb
 from wandb.sdk.artifacts.artifact import Artifact as WandbArtifact
@@ -146,6 +147,24 @@ def _convert_to_value(parsed_args, type_def: weave.types.Type, prefix=""):
         raise NotImplementedError(f"Type {type_def} not supported")
 
 
+def _uris_to_objs(c: dict):
+    config = {}
+    for k, v in c.items():
+        if isinstance(v, dict):
+            config[k] = _wandb_config_to_weave_config(v)
+        elif isinstance(v, uris.WeaveURI):
+            ref = v.to_ref()
+            obj = ref.get()
+            # Manually attach ref to obj so when we serialize the outer object
+            # we use the ref instead of the value.
+            # TODO: weave should do this for us.
+            ref_base._put_ref(obj, ref)
+            config[k] = obj
+        else:
+            config[k] = v
+    return config
+
+
 def weave_object_main(weave_obj_class):
     weave_type = typing.cast(weave.types.ObjectType, weave_obj_class.WeaveType())
 
@@ -158,6 +177,7 @@ def weave_object_main(weave_obj_class):
     args = parser.parse_args()
 
     equiv_dict_val = _convert_to_value(args, equiv_typed_dict)
+    equiv_dict_val = _uris_to_objs(equiv_dict_val)
     weave_obj = weave_obj_class(**equiv_dict_val)
 
     # TODO: need to control the W&B Artifact type and name in a nicer way.

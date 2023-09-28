@@ -10,3 +10,8 @@ class Dataset:
 @weave.type()
 class Model:
     pass
+
+
+@weave.type()
+class PromptTemplate:
+    prompt: str

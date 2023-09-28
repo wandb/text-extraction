@@ -62,28 +62,28 @@ class PredictBasic(base_types.Model):
                     result["name"] = result["name"][: match.start()]
 
         # TODO: move monitoring / trace code into Weave engine.
-        from weave import storage
+        # from weave import storage
 
-        ref = storage.get_ref(self)
-        from weave.monitoring.monitor import default_monitor
+        # ref = storage.get_ref(self)
+        # from weave.monitoring.monitor import default_monitor
 
-        mon = default_monitor()
-        st = mon._streamtable
-        if st:
-            project_name = st._project_name
-            if not ref:
-                ref = weave.storage.publish(
-                    self, f"{project_name}/{self.__class__.__name__}"
-                )
-            from weave.monitoring.monitor import Span
+        # mon = default_monitor()
+        # st = mon._streamtable
+        # if st:
+        #     project_name = st._project_name
+        #     if not ref:
+        #         ref = weave.storage.publish(
+        #             self, f"{project_name}/{self.__class__.__name__}"
+        #         )
+        #     from weave.monitoring.monitor import Span
 
-            s = Span(
-                "PredictBasic-predict",
-                st,
-                inputs={"self": ref, "example": example},
-                output=result,
-            )
-            s.close()
+        #     s = Span(
+        #         "PredictBasic-predict",
+        #         st,
+        #         inputs={"self": ref, "example": example},
+        #         output=result,
+        #     )
+        #     s.close()
 
         return result
 

@@ -1,8 +1,8 @@
 entity = "shawn"
 
-project = "text-extract16"
+project = "modeltest1"
 
-predictions_stream_name = "predictions"
+predictions_stream_name = "predictions2"
 
 wandb = True
 

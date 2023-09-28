@@ -108,8 +108,12 @@ def evaluate_multi_task_f1(dataset: base_types.Dataset, model) -> typing.Any:
     latencies = []
     for row in dataset.rows:
         start_time = time.time()
-        result.append(weave.use(model.predict(row["example"])))
-        latencies.append(time.time() - start_time + 0.3)
+        try:
+            model_output = weave.use(model.predict(row["example"]))
+        except:
+            model_output = {}
+        result.append(model_output)
+        latencies.append(time.time() - start_time)
     output = weave.WeaveList(result)
     label = dataset.rows.column("label")
     example_summary = summarize_examples(label, output)
