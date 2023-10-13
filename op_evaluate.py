@@ -102,14 +102,16 @@ class EvaluateMultiTaskF1Config(typing.TypedDict):
     tasks: typing.List[str]
 
 
-@weave.op(input_type={"model": weave.types.ObjectType()})
-def evaluate_multi_task_f1(dataset: base_types.Dataset, model) -> typing.Any:
+@weave.op()
+def evaluate_multi_task_f1(
+    dataset: base_types.Dataset, model: base_types.Model
+) -> typing.Any:
     result = []
     latencies = []
     for row in dataset.rows:
         start_time = time.time()
         try:
-            model_output = weave.use(model.predict(row["example"]))
+            model_output = model.predict(row["example"])
         except:
             model_output = {}
         result.append(model_output)
@@ -127,8 +129,8 @@ def evaluate_multi_task_f1(dataset: base_types.Dataset, model) -> typing.Any:
     )
     tasks = dataset.rows.column("label").to_pandas().columns
     return {
-        "eval_table": eval_table,
         "summary": summarize(eval_table.column("summary"), tasks),
+        "eval_table": eval_table,
     }
 
 
